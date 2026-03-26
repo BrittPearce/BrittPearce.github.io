@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images :]</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .slideshow-container {
+        max-width: 900px;
+        width: 100%;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .slides-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 66.67%;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.7s ease-in-out;
+      }
+
+      .slide.active {
+        opacity: 1;
+      }
+
+      .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .slide-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        background: #f8f9fa;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background: #764ba2;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .home-btn {
+        background: #28a745;
+        margin-right: 10px;
+      }
+
+      .home-btn:hover {
+        background: #218838;
+      }
+
+      .slide-counter {
+        color: #667eea;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .dots-container {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 15px 0 0 0;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ddd;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .dot.active {
+        background: #667eea;
+      }
+
+      .dot:hover {
+        background: #764ba2;
+      }
+
+      .play-pause-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+
+      @media (max-width: 768px) {
+        .controls {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        button {
+          padding: 8px 16px;
+          font-size: 12px;
+        }
+
+        .slide-counter {
+          flex: 1 0 100%;
+          text-align: center;
+          order: 3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slideshow-container">
+      <div class="slides-wrapper">
+        <div class="slide active">
+          <img src="assets/line.JPG" alt="A line - Rule of thirds" />
+          <div class="slide-caption">Rule of Thirds</div>
+        </div>
+        <div class="slide">
+          <img src="assets/beauty.JPG" alt="Beauty" />
+          <div class="slide-caption">Beauty</div>
+        </div>
+        <div class="slide">
+          <img src="assets/shape.JPG" alt="Shape" />
+          <div class="slide-caption">Shape</div>
+        </div>
+        <div class="slide">
+          <img src="assets/texture.JPG" alt="Texture" />
+          <div class="slide-caption">Texture</div>
+        </div>
+        <div class="slide">
+          <img src="assets/school.JPG" alt="School spirit" />
+          <div class="slide-caption">School Spirit</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <a href="index.html" style="text-decoration: none">
+          <button class="home-btn">🏠 Home</button>
+        </a>
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <div
+          style="
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+          "
+        >
+          <span class="slide-counter"
+            ><span id="currentSlide">1</span> /
+            <span id="totalSlides">5</span></span
+          >
+          <div class="dots-container" id="dotsContainer"></div>
+        </div>
+        <button
+          id="playPauseBtn"
+          class="play-pause-btn"
+          onclick="toggleAutoPlay()"
+        >
+          Pause
+        </button>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+      </div>
+    </div>
+
+    <script>
+      let currentSlide = 1;
+      const totalSlides = document.querySelectorAll(".slide").length;
+      let autoPlayInterval = null;
+      let isAutoPlaying = true;
+
+      // Initialize dots
+      function initializeDots() {
+        const dotsContainer = document.getElementById("dotsContainer");
+        for (let i = 1; i <= totalSlides; i++) {
+          const dot = document.createElement("div");
+          dot.className = "dot";
+          if (i === currentSlide) dot.classList.add("active");
+          dot.onclick = () => goToSlide(i);
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      function showSlide(n) {
+        const slides = document.querySelectorAll(".slide");
+        const dots = document.querySelectorAll(".dot");
+
+        if (n > totalSlides) {
+          currentSlide = 1;
+        }
+        if (n < 1) {
+          currentSlide = totalSlides;
+        }
+
+        slides.forEach((slide) => slide.classList.remove("active"));
+        dots.forEach((dot) => dot.classList.remove("active"));
+
+        slides[currentSlide - 1].classList.add("active");
+        dots[currentSlide - 1].classList.add("active");
+        document.getElementById("currentSlide").textContent = currentSlide;
+      }
+
+      function changeSlide(n) {
+        currentSlide += n;
+        showSlide(currentSlide);
+      }
+
+      function goToSlide(n) {
+        currentSlide = n;
+        showSlide(currentSlide);
+      }
+
+      function toggleAutoPlay() {
+        const btn = document.getElementById("playPauseBtn");
+        if (isAutoPlaying) {
+          clearInterval(autoPlayInterval);
+          btn.textContent = "Play";
+          isAutoPlaying = false;
+        } else {
+          startAutoPlay();
+          btn.textContent = "Pause";
+          isAutoPlaying = true;
+        }
+      }
+
+      function startAutoPlay() {
+        autoPlayInterval = setInterval(() => {
+          currentSlide++;
+          showSlide(currentSlide);
+        }, 4000);
+      }
+
+      // Initialize
+      document.getElementById("totalSlides").textContent = totalSlides;
+      initializeDots();
+      startAutoPlay();
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") changeSlide(-1);
+        if (e.key === "ArrowRight") changeSlide(1);
+      });
+    </script>
+  </body>
+</html>
